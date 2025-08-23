@@ -47,11 +47,4 @@ public class AdminService {
         this.repo = repo;
     }
 
-    public List<Student> getAllStudents() {
-        return repo.findAll();
-    }
-
-    public Student addStudent(Student student) {
-        return repo.save(student);
-    }
 }

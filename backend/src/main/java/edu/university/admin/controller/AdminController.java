@@ -1,12 +1,10 @@
 package edu.university.admin.controller;
 
+import edu.university.admin.dto.StudentResponse;
 import edu.university.admin.model.Course;
 import edu.university.admin.model.CourseOffering;
 import edu.university.admin.model.Student;
-import edu.university.admin.service.AdminService;
-import edu.university.admin.service.CourseOfferingRequest;
-import edu.university.admin.service.CourseService;
-import edu.university.admin.service.CourseOfferingService;
+import edu.university.admin.service.*;
 import edu.university.utils.ApiResponse;
 import edu.university.utils.ServiceExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,13 +20,16 @@ public class AdminController {
     private final AdminService adminService;
     private final CourseService courseService;
     private final CourseOfferingService courseOfferingService;
+    private final StudentService studentservice;
 
     public AdminController(AdminService adminService,
                            CourseService courseService,
-                           CourseOfferingService courseOfferingService) {
+                           CourseOfferingService courseOfferingService,
+                           StudentService studentService) {
         this.adminService = adminService;
         this.courseService = courseService;
         this.courseOfferingService = courseOfferingService;
+        this.studentservice = studentService;
     }
 
     // ---------------- Login ----------------
@@ -62,24 +63,22 @@ public class AdminController {
         );
     }
 
-    // ---------------- Students ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/students")
-    public ResponseEntity<ApiResponse<List<Student>>> getStudents() {
+    public ResponseEntity<ApiResponse<List<StudentResponse>>> getStudents() {
         return ResponseEntity.ok(
-                ServiceExecutor.executeService(adminService::getAllStudents)
+                ServiceExecutor.executeService(studentservice::getAllStudents)
         );
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/students")
-    public ResponseEntity<ApiResponse<Student>> addStudent(@RequestBody Student student) {
+    public ResponseEntity<ApiResponse<StudentResponse>> addStudent(@RequestBody Student student) {
         return ResponseEntity.ok(
-                ServiceExecutor.executeService(() -> adminService.addStudent(student))
+                ServiceExecutor.executeService(() -> studentservice.addStudent(student))
         );
     }
 
-    // ---------------- Courses ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/courses")
     public ResponseEntity<ApiResponse<List<Course>>> getCourses() {
