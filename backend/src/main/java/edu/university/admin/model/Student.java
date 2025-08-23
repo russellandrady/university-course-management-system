@@ -1,6 +1,10 @@
 package edu.university.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "students")
@@ -21,6 +25,10 @@ public class Student {
 
     @Column(nullable = false)
     private String password;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    private List<CourseOffering> courseOfferings = new ArrayList<>();
 
     protected Student() {}
 
@@ -45,4 +53,12 @@ public class Student {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public List<CourseOffering> getCourseOfferings() {
+        return courseOfferings;
+    }
+
+    public void setCourseOfferings(List<CourseOffering> courseOfferings) {
+        this.courseOfferings = courseOfferings;
+    }
 }

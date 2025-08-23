@@ -11,14 +11,27 @@ public class JwtUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long expirationMs = 3600000; // 1 hour
 
-    public String generateToken(String username, String role) {
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String generateToken(String username, String role, Long id) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
+                .claim("id", id)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
+    }
+
+    public Long getIdFromToken(String token) {
+        return ((Number) getAllClaimsFromToken(token).get("id")).longValue();
     }
 
     public Jws<Claims> validateToken(String token) {

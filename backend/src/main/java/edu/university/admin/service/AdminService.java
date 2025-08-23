@@ -29,13 +29,13 @@ public class AdminService {
     public String login(String username, String password) {
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
-
+    
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
-
-        // Generate JWT with role ADMIN
-        return jwtutil.generateToken(username, "ADMIN");
+    
+        // Generate JWT with role ADMIN and ID
+        return jwtutil.generateToken(username, "ADMIN", admin.getId());
     }
 
     private final StudentRepository repo;

@@ -1,5 +1,6 @@
 package edu.university.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,7 +11,7 @@ public class CourseOffering {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Many offerings belong to one student
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
