@@ -1,0 +1,108 @@
+import { Home, LogOut, Moon, Sun } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { DashboardManager } from "@/api/services/DashboardService";
+import { logOutResponse } from "@/types/auth/authTypes";
+import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
+
+interface AppHeaderProps {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  children: ReactNode;
+}
+
+export function AppHeader({
+  isDarkMode,
+  toggleDarkMode,
+  children,
+}: AppHeaderProps) {
+  const navigate = useNavigate();
+  const username = useUserStore((state) => state.username); // Access username from Zustand store
+
+  const logOutMutation = useMutation<logOutResponse, Error>({
+    mutationFn: () => DashboardManager.userLogOut(),
+    onSuccess: (data) => {
+      navigate("/");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  const handleSignOut = () => {
+    logOutMutation.mutate();
+  };
+  return (
+    <SidebarProvider defaultOpen={false}>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-3">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger />
+            <Separator hidden orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <Avatar>
+                    <AvatarImage src="/mainLogo.svg" alt="home" className={isDarkMode ? "filter invert" : ""}/>
+                    <AvatarFallback></AvatarFallback>
+                  </Avatar>
+                  <BreadcrumbLink href="#">Greenfield University</BreadcrumbLink>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          <div className="flex items-center gap-2 pr-1">
+            <button
+              onClick={() => {
+                navigate("/");
+              }}
+              className="p-2 rounded-full border bg-muted hover:bg-muted/80 flex items-center justify-center"
+              aria-label="Sign Out"
+            >
+              <Home className="h-5 w-5" />
+            </button>
+            {username && (
+              <button
+                onClick={handleSignOut}
+                className="p-2 rounded-full border bg-muted hover:bg-muted/80 flex items-center justify-center"
+                aria-label="Sign Out"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            )}
+            {/* Light/Dark Mode Toggle */}
+            <button
+              className="p-2 rounded-full border bg-muted hover:bg-muted/80 flex items-center justify-center"
+              onClick={toggleDarkMode}
+              aria-label="Toggle Dark Mode"
+            >
+              {isDarkMode ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </header>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
