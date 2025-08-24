@@ -45,24 +45,24 @@ public class StudentController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(() -> {
                     String token = studentService.login(request.getUsername(), request.getPassword());
                     return new LoginResponse(token);
                 })
-        );
+        ;
     }
 
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/details")
     public ResponseEntity<ApiResponse<List<String>>> viewAllDetails(@RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(() -> {
                     // Extract token from "Bearer <token>"
                     String jwtToken = token.substring(7);
                     Long studentId = jwtUtil.getIdFromToken(jwtToken);
                     return studentService.viewAllDetails(studentId);
                 })
-        );
+        ;
     }
 }

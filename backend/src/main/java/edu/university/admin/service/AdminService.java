@@ -1,5 +1,7 @@
 package edu.university.admin.service;
 
+import edu.university.admin.dto.LoginResponse;
+import edu.university.admin.dto.StudentResponse;
 import edu.university.admin.model.Admin;
 import edu.university.admin.model.Student;
 import edu.university.admin.repository.AdminRepository;
@@ -22,20 +24,23 @@ public class AdminService {
     public void init() {
         adminRepository.findByUsername("admin")
                 .orElseGet(() -> adminRepository.save(
-                        new Admin("admin", passwordEncoder.encode("admin"))
+                        new Admin("admin", passwordEncoder.encode("adminadmin"))
                 ));
     }
 
-    public String login(String username, String password) {
+    public LoginResponse login(String username, String password, StudentService studentService) {
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
-    
+
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
-    
+
         // Generate JWT with role ADMIN and ID
-        return jwtutil.generateToken(username, "ADMIN", admin.getId());
+        String token = jwtutil.generateToken(username, "ADMIN", admin.getId());
+        // Get all students using StudentService
+        List<StudentResponse> students = studentService.getAllStudents();
+        return new LoginResponse(token, students);
     }
 
     private final StudentRepository repo;

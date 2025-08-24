@@ -1,5 +1,6 @@
 package edu.university.admin.controller;
 
+import edu.university.admin.dto.LoginResponse;
 import edu.university.admin.dto.StudentResponse;
 import edu.university.admin.model.Course;
 import edu.university.admin.model.CourseOffering;
@@ -41,75 +42,62 @@ public class AdminController {
         public String getPassword() { return password; }
     }
 
-    static class LoginResponse {
-        private final String token;
-
-        public LoginResponse(String token) {
-            this.token = token;
-        }
-
-        public String getToken() {
-            return token;
-        }
-    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(
-                ServiceExecutor.executeService(() -> {
-                    String token = adminService.login(request.getUsername(), request.getPassword());
-                    return new LoginResponse(token);
-                })
-        );
+        return
+                ServiceExecutor.executeService(() -> 
+                    adminService.login(request.getUsername(), request.getPassword(), studentservice)
+                );
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/students")
     public ResponseEntity<ApiResponse<List<StudentResponse>>> getStudents() {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(studentservice::getAllStudents)
-        );
+        ;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/students")
     public ResponseEntity<ApiResponse<StudentResponse>> addStudent(@RequestBody Student student) {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(() -> studentservice.addStudent(student))
-        );
+        ;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/courses")
     public ResponseEntity<ApiResponse<List<Course>>> getCourses() {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(courseService::getAllCourses)
-        );
+        ;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/courses")
     public ResponseEntity<ApiResponse<Course>> addCourse(@RequestBody Course course) {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(() -> courseService.addCourse(course))
-        );
+        ;
     }
 
     // ---------------- Course Offerings ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/course-offerings")
     public ResponseEntity<ApiResponse<List<CourseOffering>>> getCourseOfferings() {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(courseOfferingService::getAllCourseOfferings)
-        );
+        ;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/course-offerings")
     public ResponseEntity<ApiResponse<CourseOffering>> addCourseOffering(@RequestBody CourseOfferingRequest request) {
-        return ResponseEntity.ok(
+        return
                 ServiceExecutor.executeService(() -> courseOfferingService.addCourseOffering(request))
-        );
+        ;
     }
 
 }
