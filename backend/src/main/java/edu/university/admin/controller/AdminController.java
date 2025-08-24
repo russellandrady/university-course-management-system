@@ -8,6 +8,7 @@ import edu.university.admin.model.Student;
 import edu.university.admin.service.*;
 import edu.university.utils.ApiResponse;
 import edu.university.utils.ServiceExecutor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +54,16 @@ public class AdminController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/students")
-    public ResponseEntity<ApiResponse<List<StudentResponse>>> getStudents() {
+    public ResponseEntity<ApiResponse<Page<StudentResponse>>> getStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search
+    ) {
         return
-                ServiceExecutor.executeService(studentservice::getAllStudents)
-        ;
+                ServiceExecutor.executeService(() ->
+                        studentservice.getAllStudents(search, page, size)
+
+        );
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

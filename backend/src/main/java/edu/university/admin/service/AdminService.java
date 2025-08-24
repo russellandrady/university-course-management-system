@@ -39,7 +39,7 @@ public class AdminService {
         // Generate JWT with role ADMIN and ID
         String token = jwtutil.generateToken(username, "ADMIN", admin.getId());
         // Get all students using StudentService
-        List<StudentResponse> students = studentService.getAllStudents();
+        List<StudentResponse> students = studentService.getAllStudents("", 0, 10).getContent();;
         return new LoginResponse(token, students);
     }
 

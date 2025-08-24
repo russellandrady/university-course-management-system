@@ -3,6 +3,9 @@ package edu.university.admin.service;
 import edu.university.admin.dto.StudentResponse;
 import edu.university.admin.model.Student;
 import edu.university.admin.repository.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +23,22 @@ public class StudentService {
     }
 
 
-    public List<StudentResponse> getAllStudents() {
-        return repo.findAll()
-                .stream()
-                .map(s -> new StudentResponse(
-                        s.getId(),
-                        s.getName(),
-                        s.getStudentId(),
-                        s.getRegisteredYear()
-                ))
-                .toList();
+    public Page<StudentResponse> getAllStudents(String search, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Student> students;
+        if (search != null && !search.isEmpty()) {
+            students = repo.findByNameContainingIgnoreCaseOrStudentIdContainingIgnoreCase(search, search, pageable);
+        } else {
+            students = repo.findAll(pageable);
+        }
+
+        return students.map(s -> new StudentResponse(
+                s.getId(),
+                s.getName(),
+                s.getStudentId(),
+                s.getRegisteredYear()
+        ));
     }
 
     public Student getById(Long id) {
