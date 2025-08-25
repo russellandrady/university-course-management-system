@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { UserType } from "@/types/UserType";
-import type { AuthResponseOfAdmin, StudentsPage } from "@/types/auth/authTypes";
+import type { CoursesPage, StudentsPage } from "@/types/auth/authTypes";
 
 type UserState = {
   username: string | null; // Store the username
@@ -13,6 +13,8 @@ type UserState = {
   setUserType: (userType: UserType) => void; // Setter for userType
   studentPage: StudentsPage | null;
   setStudentPage: (data: StudentsPage) => void;
+  coursePage: CoursesPage | null;
+  setCoursesPage: (data: CoursesPage) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -22,11 +24,13 @@ export const useUserStore = create<UserState>()(
       modeDark: false, // Optional: Initial mode state
       userType: null, // Initial userType
       studentPage: null,
+      coursePage: null,
       setUsername: (username: string) => set({ username: username }), // Update username
       setUserType: (userType: UserType) => set({ userType }), // Setter
       setStudentPage: (data: StudentsPage) => set({ studentPage: data }),
+      setCoursesPage: (data: CoursesPage) => set({ coursePage: data }),
       toggleMode: () => set(() => ({ modeDark: !get().modeDark })), // Toggle mode state
-      clearUser: () => set({ username: null, userType: null, studentPage: null }), // Clear user state
+      clearUser: () => set({ username: null, userType: null, studentPage: null, coursePage: null }), // Clear user state
     }),
     {
       name: "user-storage", // Key for local storage

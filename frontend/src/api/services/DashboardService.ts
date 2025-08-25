@@ -45,6 +45,21 @@ export const DashboardManager = {
       });
       return response.data.data.content;
     },
+    fetchCourses: async ({ page = 0, size = 10, search = "" }) => {
+      const params = new URLSearchParams({
+        page: String(page),
+        size: String(size),
+        search,
+      });
+      const response = await apiManager.apiGET<ApiResponse>(`/admin/courses?${params.toString()}`);
+      useUserStore.getState().setCoursesPage({
+        courses: response.data.data.content,
+        totalPages: response.data.data.totalPages,
+        totalElements: response.data.data.totalElements,
+        page: response.data.data.pageable.pageNumber
+      });
+      return response.data.data.content;
+    },
       
 
 };

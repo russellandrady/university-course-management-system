@@ -1,0 +1,86 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { useUserStore } from "@/store/userStore"
+import { DashboardManager } from "@/api/services/DashboardService"
+import { DataTable } from "./dataTable"
+
+const courseColumns = [
+  { key: "courseId", label: "Course ID" },
+  { key: "name", label: "Name" },
+  { key: "credits", label: "Credits" },
+  { key: "mandatory", label: "Mandatory" },
+]
+
+const courseEditFields = [
+  { key: "courseId", label: "Course ID" },
+  { key: "name", label: "Name" },
+  { key: "credits", label: "Credits", type: "number" },
+  { key: "mandatory", label: "Mandatory" },
+]
+
+export function Courses() {
+  const userStore = useUserStore()
+  const courses = userStore.coursePage?.courses ?? []
+  
+  const [hasSearched, setHasSearched] = useState(false)
+  const totalPages = userStore.coursePage?.totalPages ?? 0
+  const [page, setPage] = useState(0)
+  const [size] = useState(10)
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  const { data: coursesData } = useQuery({
+    queryKey: ["courses", page, size, debouncedSearch],
+    queryFn: () =>
+      DashboardManager.fetchCourses({
+        page,
+        size,
+        search: debouncedSearch,
+      }),
+      enabled: !userStore.coursePage ||
+                page !== 0 ||
+                hasSearched,
+  })
+
+  const handleEdit = (row: any) => {
+    // Handle edit logic here
+  }
+
+  const handleSearch = (search: string) => {
+    setPage(0)
+    setDebouncedSearch(search)
+    setHasSearched(true)
+  }
+
+  useEffect(() => {
+    if (debouncedSearch === "" && hasSearched) {
+      setHasSearched(false) // Reset search state
+    }
+  }, [debouncedSearch])
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handleUpdate = (data: any) => {
+    // Handle update logic here
+    console.log("Updating course:", data)
+  }
+
+  return (
+    <DataTable
+      data={courses}
+      columns={courseColumns}
+      searchPlaceholder="Search courses..."
+      onEdit={handleEdit}
+      onSearch={handleSearch}
+      onPageChange={handlePageChange}
+      currentPage={page}
+      totalPages={totalPages}
+      editModalTitle="Update Course"
+      editFields={courseEditFields}
+      onUpdate={handleUpdate}
+    />
+  )
+}
