@@ -48,7 +48,7 @@ public class AdminController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         return
                 ServiceExecutor.executeService(() -> 
-                    adminService.login(request.getUsername(), request.getPassword(), studentservice)
+                    adminService.login(request.getUsername(), request.getPassword())
                 );
     }
 

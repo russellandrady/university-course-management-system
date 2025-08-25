@@ -8,6 +8,7 @@ import edu.university.admin.repository.AdminRepository;
 import edu.university.admin.repository.StudentRepository;
 import edu.university.security.util.JwtUtil;
 import jakarta.annotation.PostConstruct;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class AdminService {
                 ));
     }
 
-    public LoginResponse login(String username, String password, StudentService studentService) {
+    public LoginResponse login(String username, String password) {
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
@@ -36,12 +37,12 @@ public class AdminService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        // Generate JWT with role ADMIN and ID
         String token = jwtutil.generateToken(username, "ADMIN", admin.getId());
-        // Get all students using StudentService
-        List<StudentResponse> students = studentService.getAllStudents("", 0, 10).getContent();;
-        return new LoginResponse(token, students);
+
+        // Only return token, no students
+        return new LoginResponse(token);
     }
+
 
     private final StudentRepository repo;
 
