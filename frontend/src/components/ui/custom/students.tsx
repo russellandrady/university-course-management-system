@@ -4,6 +4,7 @@ import { useUserStore } from "@/store/userStore"
 import { DashboardManager } from "@/api/services/DashboardService"
 import type { StudentResponse } from "@/types/student/StudentResponse"
 import { DataTable } from "./dataTable"
+import { z } from "zod"
 
 const studentColumns = [
   { key: "name", label: "Name" },
@@ -15,7 +16,15 @@ const studentEditFields = [
   { key: "name", label: "Name" },
   { key: "studentId", label: "Student Id" },
   { key: "registeredYear", label: "Registered Year" },
+  { key: "password", label: "Password", type: "password" },
 ]
+
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  studentId: z.string().min(1, "Student ID is required"),
+  registeredYear: z.coerce.number().min(1900, "Registered Year must be valid"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+});
 
 export function Students() {
   const userStore = useUserStore()
@@ -60,11 +69,6 @@ export function Students() {
     setPage(newPage)
   }
 
-  const handleUpdate = (data: any) => {
-    // Handle update logic here
-    console.log("Updating student:", data)
-  }
-
   return (
     <DataTable
       data={students}
@@ -77,7 +81,9 @@ export function Students() {
       totalPages={totalPages}
       editModalTitle="Update Student"
       editFields={studentEditFields}
-      onUpdate={handleUpdate}
+      formSchema={formSchema}
+      onAdd={(data) => DashboardManager.addStudent(data)}
+      onUpdate={(data) => DashboardManager.updateStudent(data)}
     />
   )
 }

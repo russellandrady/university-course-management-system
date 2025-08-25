@@ -20,6 +20,11 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../form";
+import { useMutation } from "@tanstack/react-query";
 
 interface Column {
   key: string;
@@ -38,7 +43,9 @@ interface DataTableProps {
   totalPages: number;
   editModalTitle: string;
   editFields: { key: string; label: string; type?: string }[];
+  onAdd: (data: any) => void;
   onUpdate: (data: any) => void;
+  formSchema: z.ZodObject<any>;
 }
 
 export function DataTable({
@@ -52,14 +59,16 @@ export function DataTable({
   totalPages,
   editModalTitle,
   editFields,
+  onAdd,
   onUpdate,
+  formSchema,
 }: DataTableProps) {
   const [searchInput, setSearchInput] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editData, setEditData] = useState<any>({});
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounced search
+    // Debounced search
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
@@ -70,41 +79,71 @@ export function DataTable({
     };
   }, [searchInput, onSearch]);
 
+
+  // Add Form
+  const addForm = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+  });
+
+  // Edit Form
+  const editForm = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await onAdd(data);
+    },
+    onSuccess: () => {
+      setIsAddModalOpen(false);
+      addForm.reset();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await onUpdate(data);
+    },
+    onSuccess: () => {
+      setIsEditModalOpen(false);
+      editForm.reset();
+    },
+  });
+
+  // Handle add form submission
+  const handleAddSubmit = (formData: any) => {
+    addMutation.mutate(formData);
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = (formData: any) => {
+    updateMutation.mutate(formData);
+  };
+
+  // Set edit form values when editing
   const handleEdit = (row: any) => {
-    setEditData(row);
-    setModalOpen(true);
+    editForm.reset(row);
+    setIsEditModalOpen(true);
     onEdit(row);
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    setEditData({ ...editData, [field]: e.target.value });
-  };
-
-  const handleModalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdate(editData);
-    setModalOpen(false);
-    console.log("Updated data:", editData);
-    setEditData({});
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setEditData({});
   };
 
   return (
     <div className="w-[90%] flex flex-col">
-      <div className="flex items-center py-4">
+      <div className="flex items-center justify-between py-4">
         <Input
           placeholder={searchPlaceholder}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-sm"
         />
+        <Button
+          onClick={() => setIsAddModalOpen(true)}
+          className="ml-auto"
+        >
+          Add New
+        </Button>
       </div>
       <Table className="rounded-xl overflow-hidden bg-background/60 backdrop-blur-md shadow-lg border border-gray-200/60">
         <TableHeader>
@@ -186,45 +225,121 @@ export function DataTable({
       </div>
 
       {/* Edit Modal */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent
-          className="max-w-md"
-          onInteractOutside={handleModalClose}
-          onEscapeKeyDown={handleModalClose}
-        >
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editModalTitle}</DialogTitle>
+            <DialogTitle>Add New {editModalTitle}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleModalSubmit} className="space-y-4">
-            {editFields.map((field) => (
-              <div key={field.key}>
-                <label className="block text-sm font-medium mb-1">
-                  {field.label}
-                </label>
-                <input
-                  className="w-full border rounded-sm px-2 py-1"
-                  type={field.type || "text"}
-                  value={editData[field.key] ?? ""}
-                  onChange={(e) => handleInputChange(e, field.key)}
-                  required
+          <Form {...addForm}>
+            <form onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-4">
+              {editFields.map((field) => (
+                <FormField
+                  key={field.key}
+                  control={addForm.control}
+                  name={field.key}
+                  render={({ field: formField }) => (
+                    <FormItem>
+                      <label className="block text-sm font-medium mb-1">
+                        {field.label}
+                      </label>
+                      <FormControl>
+                        {field.type === "boolean" ? (
+                          <select
+                            className="w-full border rounded-sm px-2 py-1"
+                            {...formField}
+                          >
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        ) : (
+                          <Input
+                            type={field.type || "text"}
+                            {...formField}
+                            autoComplete="new-password"
+                          />
+                        )}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            ))}
-            <DialogFooter className="flex justify-end gap-2 pt-2">
-              <DialogClose asChild>
+              ))}
+              <DialogFooter>
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={handleModalClose}
+                  onClick={() => setIsAddModalOpen(false)}
                 >
                   Cancel
                 </Button>
-              </DialogClose>
-              <Button type="submit" variant="default">
-                Update
-              </Button>
-            </DialogFooter>
-          </form>
+                <Button 
+                  type="submit"
+                  disabled={!addForm.formState.isValid}
+                >
+                  Add
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit {editModalTitle}</DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+              {editFields.map((field) => (
+                <FormField
+                  key={field.key}
+                  control={editForm.control}
+                  name={field.key}
+                  render={({ field: formField }) => (
+                    <FormItem>
+                      <label className="block text-sm font-medium mb-1">
+                        {field.label}
+                      </label>
+                      <FormControl>
+                        {field.type == "boolean" ? (
+                          <select
+                            className="w-full border rounded-sm px-2 py-1"
+                            {...formField}
+                          >
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        ) : (
+                          <Input
+                            type={field.type || "text"}
+                            {...formField}
+                          />
+                        )}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={!editForm.formState.isValid}
+                >
+                  Update
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

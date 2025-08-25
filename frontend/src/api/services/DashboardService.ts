@@ -60,6 +60,72 @@ export const DashboardManager = {
       });
       return response.data.data.content;
     },
+    addCourse: async (courseData: any) => {
+      const response = await apiManager.apiPOST<ApiResponse>(
+        `/admin/courses`,
+        courseData
+      );
       
+      // Get current state
+      const currentCoursePage = useUserStore.getState().coursePage;
+      
+      if (currentCoursePage) {
+        // Add new course to existing courses
+        const updatedCourses = [
+          response.data.data,
+          ...currentCoursePage.courses
+        ];
+    
+        // Update store with new course added
+        useUserStore.getState().setCoursesPage({
+          ...currentCoursePage,
+          courses: updatedCourses,
+          totalElements: currentCoursePage.totalElements + 1
+        });
+      }
+    
+      return response.data.data;
+    },
+    updateCourse: async (courseData: any) => {
+      const response = await apiManager.apiPOST<ApiResponse>(
+        `/admin/courses/${courseData.id}`,
+        courseData
+      );
+      return response.data.data;
+    },
+    addStudent: async (studentData: any) => {
+      const response = await apiManager.apiPOST<ApiResponse>(
+        `/admin/students`,
+        studentData
+      );
+      
+      // Get current state
+      const currentStudentPage = useUserStore.getState().studentPage;
+      
+      if (currentStudentPage) {
+        // Add new student to existing students
+        const updatedStudents = [
+          response.data.data,
+          ...currentStudentPage.students
+        ];
+    
+        // Update store with new student added
+        useUserStore.getState().setStudentPage({
+          ...currentStudentPage,
+          students: updatedStudents,
+          totalElements: currentStudentPage.totalElements + 1
+        });
+      }
+    
+      return response.data.data;
+    },
+
+    updateStudent: async (studentData: any) => {
+      const response = await apiManager.apiPOST<ApiResponse>(
+        `/admin/students/${studentData.id}`,
+        studentData
+      );
+      return response.data.data;
+    }
 
 };

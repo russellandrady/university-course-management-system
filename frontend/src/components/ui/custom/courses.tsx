@@ -1,10 +1,9 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useUserStore } from "@/store/userStore"
 import { DashboardManager } from "@/api/services/DashboardService"
 import { DataTable } from "./dataTable"
+import { z } from "zod"
 
 const courseColumns = [
   { key: "courseId", label: "Course ID" },
@@ -17,8 +16,14 @@ const courseEditFields = [
   { key: "courseId", label: "Course ID" },
   { key: "name", label: "Name" },
   { key: "credits", label: "Credits", type: "number" },
-  { key: "mandatory", label: "Mandatory" },
+  { key: "mandatory", label: "Mandatory", type: "boolean" },
 ]
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  courseId: z.string().min(1, "Course ID is required"),
+  credits: z.coerce.number().min(1, "Credits must be at least 1"),
+  mandatory: z.coerce.boolean(),
+});
 
 export function Courses() {
   const userStore = useUserStore()
@@ -63,11 +68,6 @@ export function Courses() {
     setPage(newPage)
   }
 
-  const handleUpdate = (data: any) => {
-    // Handle update logic here
-    console.log("Updating course:", data)
-  }
-
   return (
     <DataTable
       data={courses}
@@ -80,7 +80,9 @@ export function Courses() {
       totalPages={totalPages}
       editModalTitle="Update Course"
       editFields={courseEditFields}
-      onUpdate={handleUpdate}
+      formSchema={formSchema}
+      onAdd={(data) => DashboardManager.addCourse(data)}
+      onUpdate={(data) => DashboardManager.updateCourse(data)}
     />
   )
 }
