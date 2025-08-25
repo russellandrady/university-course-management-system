@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
               <BreadcrumbItem>
-                  <BreadcrumbLink href="#">for improving Sinhala</BreadcrumbLink>
+                  <BreadcrumbLink href="#">for Endless Learning</BreadcrumbLink>
                 </BreadcrumbItem>
             </SidebarMenuButton>
           </SidebarMenuItem>

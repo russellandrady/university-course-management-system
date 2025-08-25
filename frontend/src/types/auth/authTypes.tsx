@@ -5,9 +5,15 @@ export interface AuthCredentials {
   password: string;
 }
 
+export interface StudentsPage {
+  students: StudentResponse[];
+  totalPages: number;
+  totalElements: number;
+  page?: number;
+}
+
 export interface AuthResponseOfAdmin {
   token: string;
-  students: StudentResponse[];
 }
 
 export interface logOutResponse{

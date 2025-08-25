@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { UserType } from "@/types/UserType";
-import type { AuthResponseOfAdmin } from "@/types/auth/authTypes";
+import type { AuthResponseOfAdmin, StudentsPage } from "@/types/auth/authTypes";
 
 type UserState = {
   username: string | null; // Store the username
@@ -11,9 +11,8 @@ type UserState = {
   toggleMode: () => void;
   userType: UserType | null; // Add userType
   setUserType: (userType: UserType) => void; // Setter for userType
-  authResponseAdmin: AuthResponseOfAdmin | null;
-  setAuthResponseAdmin: (data: AuthResponseOfAdmin) => void;
-  clearAuthResponseAdmin: () => void;
+  studentPage: StudentsPage | null;
+  setStudentPage: (data: StudentsPage) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -22,13 +21,12 @@ export const useUserStore = create<UserState>()(
       username: null, // Initial state
       modeDark: false, // Optional: Initial mode state
       userType: null, // Initial userType
-      authResponseAdmin: null,
+      studentPage: null,
       setUsername: (username: string) => set({ username: username }), // Update username
       setUserType: (userType: UserType) => set({ userType }), // Setter
-      setAuthResponseAdmin: (data: AuthResponseOfAdmin) => set({ authResponseAdmin: data }),
+      setStudentPage: (data: StudentsPage) => set({ studentPage: data }),
       toggleMode: () => set(() => ({ modeDark: !get().modeDark })), // Toggle mode state
-      clearUser: () => set({ username: null, userType: null }), // Clear user state
-      clearAuthResponseAdmin: () => set({ authResponseAdmin: null }),
+      clearUser: () => set({ username: null, userType: null, studentPage: null }), // Clear user state
     }),
     {
       name: "user-storage", // Key for local storage

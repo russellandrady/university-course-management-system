@@ -2,6 +2,8 @@ import apiManager from "../apiManager.js";
 import { ApiResponse } from "@/types/ApiResponse.js";
 import { AuthCredentials, AuthResponseOfAdmin, logOutResponse } from "@/types/auth/authTypes.js";
 import { useUserStore } from "@/store/userStore.js";
+import { use } from "react";
+import { useTokenStore } from "@/store/tokenStore.js";
 
 export const DashboardManager = {
       userAuth: async (credentials: AuthCredentials): Promise<AuthResponseOfAdmin> => {
@@ -15,13 +17,9 @@ export const DashboardManager = {
         );
         useUserStore.getState().setUsername(credentials.username);
         useUserStore.getState().setUserType("admin");
-        useUserStore.getState().setAuthResponseAdmin({
-          token: response.data.data.token,
-          students: response.data.data.students
-        });
+        useTokenStore.getState().setToken(response.data.data.token);
         return {
-          token: response.data.data.token,
-          students: response.data.data.students
+          token: response.data.data.token
         };
     },
     userLogOut: async (): Promise<logOutResponse> => {
@@ -30,6 +28,23 @@ export const DashboardManager = {
         );
         useUserStore.getState().clearUser(); // Clear the username in the store
         return {message: response.data.message}; // Assuming the API returns a success message or similar
-      }
+    },
+
+    fetchStudents: async ({ page = 0, size = 10, search = "" }) => {
+      const params = new URLSearchParams({
+        page: String(page),
+        size: String(size),
+        search,
+      });
+      const response = await apiManager.apiGET<ApiResponse>(`/admin/students?${params.toString()}`);
+      useUserStore.getState().setStudentPage({
+        students: response.data.data.content,
+        totalPages: response.data.data.totalPages,
+        totalElements: response.data.data.totalElements,
+        page: response.data.data.pageable.pageNumber
+      });
+      return response.data.data.content;
+    },
+      
 
 };

@@ -18,6 +18,8 @@ import { AuthCredentials } from "@/types/auth/authTypes";
 import { DashboardManager } from "@/api/services/DashboardService";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { use } from "react";
+import { useUserStore } from "@/store/userStore";
 
 // Define form schema using zod
 const formSchema = z.object({
