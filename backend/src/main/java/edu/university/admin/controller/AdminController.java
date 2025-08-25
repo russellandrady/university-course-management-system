@@ -76,10 +76,14 @@ public class AdminController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/courses")
-    public ResponseEntity<ApiResponse<List<Course>>> getCourses() {
-        return
-                ServiceExecutor.executeService(courseService::getAllCourses)
-        ;
+    public ResponseEntity<ApiResponse<Page<Course>>> getCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search
+    ) {
+        return ServiceExecutor.executeService(() ->
+                courseService.getAllCourses(search, page, size)
+        );
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

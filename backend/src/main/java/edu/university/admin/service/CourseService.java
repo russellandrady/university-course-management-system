@@ -2,6 +2,8 @@ package edu.university.admin.service;
 
 import edu.university.admin.model.Course;
 import edu.university.admin.repository.CourseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +16,8 @@ public class CourseService {
         this.repo = repo;
     }
 
-    public List<Course> getAllCourses() {
-        return repo.findAll();
+    public Page<Course> getAllCourses(String search, int page, int size) {
+        return repo.findByNameContainingIgnoreCaseOrCourseIdContainingIgnoreCase(search, search, PageRequest.of(page, size));
     }
 
     public Course getById(Long id) {
