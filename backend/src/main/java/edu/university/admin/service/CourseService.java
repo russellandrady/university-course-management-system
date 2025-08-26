@@ -29,6 +29,25 @@ public class CourseService {
         return repo.save(course);
     }
 
+    public Course updateCourse(Course course) {
+        if (course.getId() == null) {
+            throw new IllegalArgumentException("Course ID is required for update");
+        }
+
+        Course existing = repo.findById(course.getId())
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + course.getId()));
+
+        // update only the fields you want
+        existing.setCourseId(course.getCourseId());
+        existing.setName(course.getName());
+        existing.setMandatory(course.isMandatory());
+        existing.setCredits(course.getCredits());
+        // add more setters if needed
+
+        return repo.save(existing);
+    }
+
+
     public Course update(Long id, Course updated) {
         Course course = getById(id);
         course.setCourseId(updated.getCourseId());

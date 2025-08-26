@@ -75,6 +75,13 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/students/update")
+    public ResponseEntity<ApiResponse<StudentResponse>> updateStudent(@RequestBody Student student) {
+        return ServiceExecutor.executeService(() -> studentservice.updateStudent(student));
+    }
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/courses")
     public ResponseEntity<ApiResponse<Page<Course>>> getCourses(
             @RequestParam(defaultValue = "0") int page,
@@ -92,6 +99,12 @@ public class AdminController {
         return
                 ServiceExecutor.executeService(() -> courseService.addCourse(course))
         ;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/courses/update")
+    public ResponseEntity<ApiResponse<Course>> updateCourse(@RequestBody Course course) {
+        return ServiceExecutor.executeService(() -> courseService.updateCourse(course));
     }
 
     // ---------------- Course Offerings ----------------

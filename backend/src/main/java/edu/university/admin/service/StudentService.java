@@ -52,6 +52,29 @@ public class StudentService {
         return new StudentResponse(saved.getId(), saved.getName(), saved.getStudentId(), saved.getRegisteredYear());
     }
 
+    public StudentResponse updateStudent(Student student) {
+        if (student.getId() == null) {
+            throw new IllegalArgumentException("Student ID is required for update");
+        }
+
+        Student existing = repo.findById(student.getId())
+                .orElseThrow(() -> new RuntimeException("Student not found with id: " + student.getId()));
+
+        // update fields (don’t overwrite password unless new one is provided)
+        existing.setName(student.getName());
+        existing.setStudentId(student.getStudentId());
+        existing.setRegisteredYear(student.getRegisteredYear());
+
+        if (student.getPassword() != null && !student.getPassword().isBlank()) {
+            existing.setPassword(passwordEncoder.encode(student.getPassword()));
+        }
+
+        Student saved = repo.save(existing);
+
+        return new StudentResponse(saved.getId(), saved.getName(), saved.getStudentId(), saved.getRegisteredYear());
+    }
+
+
     public StudentResponse update(Long id, Student updated) {
         Student student = getById(id);
         student.setName(updated.getName());
