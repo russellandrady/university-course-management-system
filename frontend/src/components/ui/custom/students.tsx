@@ -12,11 +12,17 @@ const studentColumns = [
   { key: "registeredYear", label: "Registered Year" },
 ]
 
-const studentEditFields = [
+const studentAddFields = [
   { key: "name", label: "Name" },
   { key: "studentId", label: "Student Id" },
   { key: "registeredYear", label: "Registered Year" },
   { key: "password", label: "Password", type: "password" },
+]
+
+const studentEditFields = [
+  { key: "name", label: "Name" },
+  { key: "studentId", label: "Student Id" },
+  { key: "registeredYear", label: "Registered Year" },
 ]
 
 const formSchema = z.object({
@@ -80,10 +86,13 @@ export function Students() {
       currentPage={page}
       totalPages={totalPages}
       editModalTitle="Update Student"
+      addModalTitle="Add Student"
       editFields={studentEditFields}
+      addFields={studentAddFields}
       formSchema={formSchema}
       onAdd={(data) => DashboardManager.addStudent(data)}
       onUpdate={(data) => DashboardManager.updateStudent(data)}
+      tableTitle="Students"
     />
   )
 }

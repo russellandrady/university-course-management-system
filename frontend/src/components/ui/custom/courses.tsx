@@ -18,6 +18,14 @@ const courseEditFields = [
   { key: "credits", label: "Credits", type: "number" },
   { key: "mandatory", label: "Mandatory", type: "boolean" },
 ]
+
+const courseAddFields = [
+  { key: "courseId", label: "Course ID" },
+  { key: "name", label: "Name" },
+  { key: "credits", label: "Credits", type: "number" },
+  { key: "mandatory", label: "Mandatory", type: "boolean" },
+]
+
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   courseId: z.string().min(1, "Course ID is required"),
@@ -79,10 +87,13 @@ export function Courses() {
       currentPage={page}
       totalPages={totalPages}
       editModalTitle="Update Course"
+      addModalTitle="Add Course"
       editFields={courseEditFields}
+      addFields={courseAddFields}
       formSchema={formSchema}
       onAdd={(data) => DashboardManager.addCourse(data)}
       onUpdate={(data) => DashboardManager.updateCourse(data)}
+      tableTitle="Courses"
     />
   )
 }

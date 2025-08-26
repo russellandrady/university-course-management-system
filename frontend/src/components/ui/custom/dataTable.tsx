@@ -42,10 +42,13 @@ interface DataTableProps {
   currentPage: number;
   totalPages: number;
   editModalTitle: string;
+  addModalTitle: string;
   editFields: { key: string; label: string; type?: string }[];
+  addFields: { key: string; label: string; type?: string }[];
   onAdd: (data: any) => void;
   onUpdate: (data: any) => void;
   formSchema: z.ZodObject<any>;
+  tableTitle?: string;
 }
 
 export function DataTable({
@@ -58,15 +61,19 @@ export function DataTable({
   currentPage,
   totalPages,
   editModalTitle,
+  addModalTitle,
   editFields,
+  addFields,
   onAdd,
   onUpdate,
   formSchema,
+  tableTitle
 }: DataTableProps) {
   const [searchInput, setSearchInput] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [currentEditingRow, setCurrentEditingRow] = useState<any>(null);
 
     // Debounced search
   useEffect(() => {
@@ -119,18 +126,25 @@ export function DataTable({
 
   // Handle edit form submission
   const handleEditSubmit = (formData: any) => {
-    updateMutation.mutate(formData);
-  };
+  updateMutation.mutate({
+    ...formData,
+    id: currentEditingRow?.id // Include the id from stored row
+  });
+};
 
   // Set edit form values when editing
   const handleEdit = (row: any) => {
-    editForm.reset(row);
-    setIsEditModalOpen(true);
-    onEdit(row);
-  };
+  setCurrentEditingRow(row); // Store the current editing row
+  editForm.reset(row);
+  setIsEditModalOpen(true);
+  onEdit(row);
+};
 
   return (
     <div className="w-[90%] flex flex-col">
+      {tableTitle && (
+        <h2 className="text-xl font-light mb-2">{tableTitle}</h2>
+      )}
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder={searchPlaceholder}
@@ -228,11 +242,11 @@ export function DataTable({
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New {editModalTitle}</DialogTitle>
+            <DialogTitle>Add New {addModalTitle}</DialogTitle>
           </DialogHeader>
           <Form {...addForm}>
             <form onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-4">
-              {editFields.map((field) => (
+              {addFields.map((field) => (
                 <FormField
                   key={field.key}
                   control={addForm.control}
