@@ -1,6 +1,7 @@
 package edu.university.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,9 +12,9 @@ public class CourseOffering {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonIgnoreProperties({"courseOfferings", "password"})
     private Student student;
 
     // Many offerings belong to one course

@@ -110,10 +110,12 @@ public class AdminController {
     // ---------------- Course Offerings ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/course-offerings")
-    public ResponseEntity<ApiResponse<List<CourseOffering>>> getCourseOfferings() {
-        return
-                ServiceExecutor.executeService(courseOfferingService::getAllCourseOfferings)
-        ;
+    public ResponseEntity<ApiResponse<Page<CourseOffering>>> getCourseOfferings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search
+    ) {
+        return ServiceExecutor.executeService(() -> courseOfferingService.getCourseOfferings(page, size, search));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -122,6 +124,14 @@ public class AdminController {
         return
                 ServiceExecutor.executeService(() -> courseOfferingService.addCourseOffering(request))
         ;
+    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/course-offerings/update")
+    public ResponseEntity<ApiResponse<CourseOffering>> updateCourseOffering(
+            @RequestBody CourseOfferingUpdateRequest request) {
+        return ServiceExecutor.executeService(() ->
+                courseOfferingService.updateCourseOffering(request)
+        );
     }
 
 }

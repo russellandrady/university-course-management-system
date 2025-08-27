@@ -2,7 +2,7 @@ package edu.university.admin.service;
 
 public class CourseOfferingRequest {
     private String studentId;
-    private Long courseId;
+    private String courseId;
     private int offeredYear;
     private int result;
 
@@ -10,8 +10,8 @@ public class CourseOfferingRequest {
     public String getStudentId() { return studentId; }
     public void setStudentId(String studentId) { this.studentId = studentId; }
 
-    public Long getCourseId() { return courseId; }
-    public void setCourseId(Long courseId) { this.courseId = courseId; }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
 
     public int getOfferedYear() { return offeredYear; }
     public void setOfferedYear(int offeredYear) { this.offeredYear = offeredYear; }

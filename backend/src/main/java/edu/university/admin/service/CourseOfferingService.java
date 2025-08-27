@@ -6,6 +6,9 @@ import edu.university.admin.model.Student;
 import edu.university.admin.repository.CourseOfferingRepository;
 import edu.university.admin.repository.CourseRepository;
 import edu.university.admin.repository.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +28,12 @@ public class CourseOfferingService {
         this.courseRepository = courseRepository;
     }
 
-    public List<CourseOffering> getAllCourseOfferings() {
-        return courseOfferingRepository.findAll();
+    public Page<CourseOffering> getCourseOfferings(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (search != null && !search.isEmpty()) {
+            return courseOfferingRepository.searchCourseOfferings(search, pageable);
+        }
+        return courseOfferingRepository.findAll(pageable);
     }
 
     public CourseOffering getById(Long id) {
@@ -38,28 +45,27 @@ public class CourseOfferingService {
     public CourseOffering addCourseOffering(CourseOfferingRequest request) {
         Student student = studentRepository.findByStudentId(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-        Course course = courseRepository.findById(request.getCourseId())
+
+        Course course = courseRepository.findByCourseId(request.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         CourseOffering offering = new CourseOffering(student, course, request.getOfferedYear(), request.getResult());
         return courseOfferingRepository.save(offering);
     }
 
-    public CourseOffering update(Long id, CourseOfferingRequest request) {
-        CourseOffering co = getById(id);
+    public CourseOffering updateCourseOffering(CourseOfferingUpdateRequest request) {
+        // Fetch existing course offering by auto-increment ID
+        CourseOffering co = courseOfferingRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Course offering not found"));
 
-        Student student = studentRepository.findByStudentId(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        co.setStudent(student);
-        co.setCourse(course);
-        co.setOfferedYear(request.getOfferedYear());
-        co.setResult(request.getResult());
+        // Update only offeredYear and result if provided
+        if (request.getOfferedYear() != null) co.setOfferedYear(request.getOfferedYear());
+        if (request.getResult() != null) co.setResult(request.getResult());
 
         return courseOfferingRepository.save(co);
     }
+
+
 
     public void delete(Long id) {
         courseOfferingRepository.deleteById(id);
