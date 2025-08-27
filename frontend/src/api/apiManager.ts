@@ -1,6 +1,7 @@
 import { RequestType } from '@/types/RequestType';
 import axios, { AxiosResponse, AxiosInstance, AxiosError } from 'axios';
 import { useTokenStore } from '@/store/tokenStore';
+import { useUserStore } from '@/store/userStore';
 
 export class ApiManager {
     private http: AxiosInstance;
@@ -34,18 +35,21 @@ export class ApiManager {
         );
 
         this.http.interceptors.response.use(
-            (response) => response,
-            (error: AxiosError) => {
-                // if (error.response?.status === 401) {
-                //     toast.error("Unauthorized or session expired. Please login again.");
-                // } else if (error.response?.data && (error.response.data as any).message) {
-                //     toast.error((error.response.data as any).message);
-                // } else {
-                //     toast.error("An error occurred.");
-                // }
-                return Promise.reject(error);
+        (response) => response,
+        (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                const userType = useUserStore.getState().userType;
+                useTokenStore.getState().clearToken();
+                useUserStore.getState().clearUser();
+                if (userType === "admin") {
+                    window.location.href = "/admin/sign-in";
+                } else {
+                    window.location.href = "/student/sign-in";
+                }
             }
-        );
+        return Promise.reject(error);
+    }
+);
     }
 
     public async apiPOST<T>(

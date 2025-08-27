@@ -20,6 +20,7 @@ import { DashboardManager } from "@/api/services/DashboardService";
 import { logOutResponse } from "@/types/auth/authTypes";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/userStore";
+import { useTokenStore } from "@/store/tokenStore";
 
 interface AppHeaderProps {
   isDarkMode: boolean;
@@ -35,17 +36,16 @@ export function AppHeader({
   const navigate = useNavigate();
   const username = useUserStore((state) => state.username); // Access username from Zustand store
 
-  const logOutMutation = useMutation<logOutResponse, Error>({
-    mutationFn: () => DashboardManager.userLogOut(),
-    onSuccess: (data) => {
-      navigate("/");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
   const handleSignOut = () => {
-    logOutMutation.mutate();
+    const userType = useUserStore.getState().userType; // Get userType before clearing
+    useTokenStore.getState().clearToken();
+    useUserStore.getState().clearUser();
+    if (userType === "admin") {
+      navigate("/admin/sign-in");
+    } else {
+      navigate("/student/sign-in");
+    }
+    toast.success("Signed out successfully.");
   };
   return (
     <SidebarProvider defaultOpen={false}>
@@ -53,8 +53,8 @@ export function AppHeader({
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-3">
           <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            {/* <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 h-4" /> */}
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
@@ -69,15 +69,6 @@ export function AppHeader({
           </div>
 
           <div className="flex items-center gap-2 pr-1">
-            <button
-              onClick={() => {
-                navigate("/");
-              }}
-              className="p-2 rounded-full border bg-muted hover:bg-muted/80 flex items-center justify-center"
-              aria-label="Sign Out"
-            >
-              <Home className="h-5 w-5" />
-            </button>
             {username && (
               <button
                 onClick={handleSignOut}

@@ -5,6 +5,7 @@ import { DashboardManager } from "@/api/services/DashboardService";
 import { DataTable } from "./dataTable";
 import { z } from "zod";
 import { ref } from "process";
+import { useTokenStore } from "@/store/tokenStore";
 
 const offeringColumns = [
   { key: "studentId", label: "Student ID" },
@@ -39,6 +40,8 @@ export function CourseOfferings() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [userTypedSomething, setUserTypedSomething] = useState(false);
 
+  const token = useTokenStore((state) => state.token);
+
   const { refetch } = useQuery({
     queryKey: ["courseOfferings", page, size, debouncedSearch],
     queryFn: () =>
@@ -47,7 +50,7 @@ export function CourseOfferings() {
         size,
         search: debouncedSearch,
       }).then(() => setUserTypedSomething(true)),
-    enabled: !userStore.courseOfferingsPage || page !== 0,
+    enabled: !!token && (!userStore.courseOfferingsPage || page !== 0),
   });
 
   const handleEdit = (row: any) => {
@@ -81,13 +84,14 @@ export function CourseOfferings() {
       currentPage={page}
       totalPages={totalPages}
       editModalTitle="Update Course Offering"
-      addModalTitle="Add Course Offering"
+      addModalTitle="Course Offering"
       editFields={offeringEditFields}
       addFields={offeringAddFields}
       formSchema={formSchema}
       onAdd={(data) => DashboardManager.addCourseOffering(data)}
       onUpdate={(data) => DashboardManager.updateCourseOffering(data)}
       tableTitle="Course Offerings"
+      onDelete={(id) => DashboardManager.deleteCourseOffering(id)}
     />
   );
 }

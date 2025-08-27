@@ -5,6 +5,7 @@ import { DashboardManager } from "@/api/services/DashboardService"
 import type { StudentResponse } from "@/types/student/StudentResponse"
 import { DataTable } from "./dataTable"
 import { z } from "zod"
+import { useTokenStore } from "@/store/tokenStore"
 
 const studentColumns = [
   { key: "name", label: "Name" },
@@ -41,6 +42,9 @@ export function Students() {
   const [size] = useState(10)
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
+  const token = useTokenStore((state) => state.token);
+
+
   const [userTypedSomething, setUserTypedSomething] = useState(false)
 
   const { refetch } = useQuery({
@@ -51,8 +55,7 @@ export function Students() {
         size,
         search: debouncedSearch,
       }).then(() => setUserTypedSomething(true)),
-      enabled: !userStore.studentPage || 
-                page !== 0
+      enabled: !!token && (!userStore.studentPage || page !== 0)
   })
 
   const handleEdit = (row: StudentResponse) => {
@@ -93,6 +96,7 @@ export function Students() {
       onAdd={(data) => DashboardManager.addStudent(data)}
       onUpdate={(data) => DashboardManager.updateStudent(data)}
       tableTitle="Students"
+      onDelete={(id) => DashboardManager.deleteStudent(id)}
     />
   )
 }

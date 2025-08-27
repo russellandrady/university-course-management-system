@@ -4,6 +4,7 @@ import { useUserStore } from "@/store/userStore"
 import { DashboardManager } from "@/api/services/DashboardService"
 import { DataTable } from "./dataTable"
 import { z } from "zod"
+import { useTokenStore } from "@/store/tokenStore"
 
 const courseColumns = [
   { key: "courseId", label: "Course ID" },
@@ -44,6 +45,8 @@ export function Courses() {
 
   const [userTypedSomething, setUserTypedSomething] = useState(false)
 
+  const token = useTokenStore((state) => state.token);
+
   const { refetch } = useQuery({
     queryKey: ["courses", page, size, debouncedSearch],
     queryFn: () =>
@@ -52,8 +55,7 @@ export function Courses() {
         size,
         search: debouncedSearch,
       }).then(() => setUserTypedSomething(true)),
-      enabled: !userStore.coursePage ||
-                page !== 0
+      enabled: !!token && (!userStore.coursePage || page !== 0)
   })
 
   const handleEdit = (row: any) => {
@@ -94,6 +96,7 @@ export function Courses() {
       onAdd={(data) => DashboardManager.addCourse(data)}
       onUpdate={(data) => DashboardManager.updateCourse(data)}
       tableTitle="Courses"
+      onDelete={(id) => DashboardManager.deleteCourse(id)}
     />
   )
 }

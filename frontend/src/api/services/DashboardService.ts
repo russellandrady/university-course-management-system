@@ -106,6 +106,28 @@ export const DashboardManager = {
     }
     return updatedCourse;
   },
+  deleteCourse: async (courseId: number) => {
+    const response = await apiManager.apiPOST<ApiResponse>(
+      `/admin/courses/delete`,
+      undefined, 
+      { id: courseId }
+    );
+
+    // Remove the deleted course from the store
+    const currentCoursePage = useUserStore.getState().coursePage;
+    if (currentCoursePage) {
+      const updatedCourses = currentCoursePage.courses.filter(
+        (course: any) => course.id !== courseId
+      );
+      useUserStore.getState().setCoursesPage({
+        ...currentCoursePage,
+        courses: updatedCourses,
+        totalElements: currentCoursePage.totalElements - 1
+      });
+    }
+
+    return response.data.data;
+  },
   addStudent: async (studentData: any) => {
     const response = await apiManager.apiPOST<ApiResponse>(
       `/admin/students`,
@@ -151,6 +173,28 @@ export const DashboardManager = {
       });
     }
     return updatedStudent;
+  },
+  deleteStudent: async (studentId: number) => {
+    const response = await apiManager.apiPOST<ApiResponse>(
+      `/admin/students/delete`,
+      undefined, 
+      { id: studentId }
+    );
+
+    // Remove the deleted student from the store
+    const currentStudentPage = useUserStore.getState().studentPage;
+    if (currentStudentPage) {
+      const updatedStudents = currentStudentPage.students.filter(
+        (student: any) => student.id !== studentId
+      );
+      useUserStore.getState().setStudentPage({
+        ...currentStudentPage,
+        students: updatedStudents,
+        totalElements: currentStudentPage.totalElements - 1
+      });
+    }
+
+    return response.data.data;
   },
   fetchCourseOfferings: async ({ page = 0, size = 10, search = "" }) => {
   const params = new URLSearchParams({
@@ -243,6 +287,26 @@ export const DashboardManager = {
 
   return newOffering;
 },
+deleteCourseOffering: async (offeringId: number) => {
+  const response = await apiManager.apiPOST<ApiResponse>(
+    `/admin/course-offerings/delete`,
+    undefined,
+    { id: offeringId }
+  );
 
+  // Remove the deleted offering from the store
+  const currentOfferingsPage = useUserStore.getState().courseOfferingsPage;
+  if (currentOfferingsPage) {
+    const updatedOfferings = currentOfferingsPage.courseOfferings.filter(
+      (offering: any) => offering.id !== offeringId
+    );
+    useUserStore.getState().setCourseOfferingsPage({
+      ...currentOfferingsPage,
+      courseOfferings: updatedOfferings,
+      totalElements: currentOfferingsPage.totalElements - 1
+    });
+  }
 
+  return response.data.data;
+}
 };
