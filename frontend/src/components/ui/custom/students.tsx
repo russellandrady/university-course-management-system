@@ -29,30 +29,30 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   studentId: z.string().min(1, "Student ID is required"),
   registeredYear: z.coerce.number().min(1900, "Registered Year must be valid"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  password: z.string().min(8, "Password must be at least 8 characters long").optional(),
 });
 
 export function Students() {
   const userStore = useUserStore()
   const students = userStore.studentPage?.students ?? []
   const totalPages = userStore.studentPage?.totalPages ?? 0
-  const [hasSearched, setHasSearched] = useState(false)
 
   const [page, setPage] = useState(0)
   const [size] = useState(10)
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: studentsData } = useQuery({
+  const [userTypedSomething, setUserTypedSomething] = useState(false)
+
+  const { refetch } = useQuery({
     queryKey: ["students", page, size, debouncedSearch],
     queryFn: () =>
       DashboardManager.fetchStudents({
         page,
         size,
         search: debouncedSearch,
-      }),
+      }).then(() => setUserTypedSomething(true)),
       enabled: !userStore.studentPage || 
-                page !== 0 ||
-                hasSearched
+                page !== 0
   })
 
   const handleEdit = (row: StudentResponse) => {
@@ -62,13 +62,13 @@ export function Students() {
   const handleSearch = (search: string) => {
     setPage(0)
     setDebouncedSearch(search)
-    setHasSearched(true)
   }
 
   useEffect(() => {
-    if (debouncedSearch === "" && hasSearched) {
-      setHasSearched(false) // Reset search state
+    if (debouncedSearch === "" && !userTypedSomething) {
+      return;
     }
+    refetch();
   }, [debouncedSearch])
 
   const handlePageChange = (newPage: number) => {

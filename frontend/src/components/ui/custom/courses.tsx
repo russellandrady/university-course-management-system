@@ -37,23 +37,23 @@ export function Courses() {
   const userStore = useUserStore()
   const courses = userStore.coursePage?.courses ?? []
   
-  const [hasSearched, setHasSearched] = useState(false)
   const totalPages = userStore.coursePage?.totalPages ?? 0
   const [page, setPage] = useState(0)
   const [size] = useState(10)
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: coursesData } = useQuery({
+  const [userTypedSomething, setUserTypedSomething] = useState(false)
+
+  const { refetch } = useQuery({
     queryKey: ["courses", page, size, debouncedSearch],
     queryFn: () =>
       DashboardManager.fetchCourses({
         page,
         size,
         search: debouncedSearch,
-      }),
+      }).then(() => setUserTypedSomething(true)),
       enabled: !userStore.coursePage ||
-                page !== 0 ||
-                hasSearched,
+                page !== 0
   })
 
   const handleEdit = (row: any) => {
@@ -63,13 +63,13 @@ export function Courses() {
   const handleSearch = (search: string) => {
     setPage(0)
     setDebouncedSearch(search)
-    setHasSearched(true)
   }
 
   useEffect(() => {
-    if (debouncedSearch === "" && hasSearched) {
-      setHasSearched(false) // Reset search state
+    if (debouncedSearch === "" && !userTypedSomething) {
+      return;
     }
+    refetch();
   }, [debouncedSearch])
 
   const handlePageChange = (newPage: number) => {

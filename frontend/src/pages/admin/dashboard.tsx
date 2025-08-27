@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Students } from "@/components/ui/custom/students"
 import { Courses } from "@/components/ui/custom/courses"
+import { CourseOfferings } from "@/components/ui/custom/course-offerings"
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("students")
@@ -12,9 +13,10 @@ export default function Dashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col">
           {/* Fixed position tabs at top */}
           <div className="sticky top-0 z-10 bg-background/30 backdrop-blur-md p-4 border-b border-gray-200/40">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="students">Students</TabsTrigger>
               <TabsTrigger value="courses">Courses</TabsTrigger>
+              <TabsTrigger value="offerings">Course Offerings</TabsTrigger>
             </TabsList>
           </div>
 
@@ -24,8 +26,12 @@ export default function Dashboard() {
               <Students />
             </TabsContent>
 
-            <TabsContent value="courses"className="mt-0 flex justify-center items-center">
+            <TabsContent value="courses" className="mt-0 flex justify-center items-center">
               <Courses />
+            </TabsContent>
+
+            <TabsContent value="offerings" className="mt-0 flex justify-center items-center">
+              <CourseOfferings />
             </TabsContent>
           </div>
         </Tabs>

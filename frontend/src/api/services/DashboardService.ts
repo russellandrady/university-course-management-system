@@ -4,6 +4,7 @@ import { AuthCredentials, AuthResponseOfAdmin, logOutResponse } from "@/types/au
 import { useUserStore } from "@/store/userStore.js";
 import { use } from "react";
 import { useTokenStore } from "@/store/tokenStore.js";
+import { CourseOfferingResponse } from "@/types/auth/course/CourseOfferingResponse.js";
 
 export const DashboardManager = {
   userAuth: async (credentials: AuthCredentials): Promise<AuthResponseOfAdmin> => {
@@ -150,6 +151,98 @@ export const DashboardManager = {
       });
     }
     return updatedStudent;
+  },
+  fetchCourseOfferings: async ({ page = 0, size = 10, search = "" }) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+    search,
+  });
+  const response = await apiManager.apiGET<ApiResponse>(
+    `/admin/course-offerings?${params.toString()}`
+  );
+  useUserStore.getState().setCourseOfferingsPage({
+  courseOfferings: response.data.data.content.map((item: any): CourseOfferingResponse => ({
+    id: String(item.id),
+    studentId: item.student.studentId,
+    courseName: item.course.name,
+    courseId: item.course.courseId,
+    offeredYear: item.offeredYear,
+    result: (item.result),
+  })),
+  totalPages: response.data.data.totalPages,
+  totalElements: response.data.data.totalElements,
+  page: response.data.data.pageable.pageNumber,
+});
+  return response.data.data.content;
+  },
+
+  updateCourseOffering: async (offeringData: any) => {
+  const response = await apiManager.apiPOST<ApiResponse>(
+    `/admin/course-offerings/update`,
+    offeringData
+  );
+
+  // Transform backend response to match CourseOfferingResponse
+  const updatedOffering: CourseOfferingResponse = {
+    id: String(response.data.data.id),
+    studentId: response.data.data.student.studentId,
+    courseName: response.data.data.course.name,
+    courseId: response.data.data.course.courseId,
+    offeredYear: response.data.data.offeredYear,
+    result: response.data.data.result,
+  };
+  console.log("Updated Course Offering:", updatedOffering);
+
+  // Update store
+  const currentOfferingsPage = useUserStore.getState().courseOfferingsPage;
+  if (currentOfferingsPage) {
+    const updatedOfferings = currentOfferingsPage.courseOfferings.map((offering: any) =>
+      offering.id === updatedOffering.id ? updatedOffering : offering
+    );
+    useUserStore.getState().setCourseOfferingsPage({
+      ...currentOfferingsPage,
+      courseOfferings: updatedOfferings
+    });
   }
+
+  return updatedOffering;
+},
+
+  addCourseOffering: async (offeringData: any) => {
+  const response = await apiManager.apiPOST<ApiResponse>(
+    `/admin/course-offerings`,
+    offeringData
+  );
+
+  // Transform backend response to match CourseOfferingResponse
+  const newOffering: CourseOfferingResponse = {
+    id: response.data.data.id,
+    studentId: response.data.data.student.studentId,
+    courseName: response.data.data.course.name,
+    courseId: response.data.data.course.courseId,
+    offeredYear: response.data.data.offeredYear,
+    result: response.data.data.result,
+  };
+
+  // Get current state
+  const currentOfferingsPage = useUserStore.getState().courseOfferingsPage;
+
+  if (currentOfferingsPage) {
+    const updatedOfferings = [
+      newOffering,
+      ...currentOfferingsPage.courseOfferings,
+    ];
+
+    useUserStore.getState().setCourseOfferingsPage({
+      ...currentOfferingsPage,
+      courseOfferings: updatedOfferings,
+      totalElements: currentOfferingsPage.totalElements + 1,
+    });
+  }
+
+  return newOffering;
+},
+
 
 };

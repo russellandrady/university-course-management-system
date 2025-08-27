@@ -1,4 +1,5 @@
 import { StudentResponse } from "../student/StudentResponse";
+import { CourseOfferingResponse } from "./course/CourseOfferingResponse";
 import { CourseResponse } from "./course/CourseResponse";
 
 export interface AuthCredentials {
@@ -6,18 +7,22 @@ export interface AuthCredentials {
   password: string;
 }
 
-export interface StudentsPage {
-  students: StudentResponse[];
+interface PageInfo {
   totalPages: number;
   totalElements: number;
   page?: number;
 }
 
-export interface CoursesPage {
+export interface StudentsPage extends PageInfo {
+  students: StudentResponse[];
+}
+
+export interface CoursesPage extends PageInfo {
   courses: CourseResponse[];
-  totalPages: number;
-  totalElements: number;
-  page?: number;
+}
+
+export interface CourseOfferingsPage extends PageInfo {
+  courseOfferings: CourseOfferingResponse[];
 }
 
 export interface AuthResponseOfAdmin {
