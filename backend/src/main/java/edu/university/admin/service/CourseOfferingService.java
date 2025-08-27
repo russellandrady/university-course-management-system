@@ -1,5 +1,6 @@
 package edu.university.admin.service;
 
+import edu.university.admin.dto.CourseOfferingResponse;
 import edu.university.admin.model.Course;
 import edu.university.admin.model.CourseOffering;
 import edu.university.admin.model.Student;
@@ -28,13 +29,21 @@ public class CourseOfferingService {
         this.courseRepository = courseRepository;
     }
 
-    public Page<CourseOffering> getCourseOfferings(int page, int size, String search) {
+    public Page<CourseOfferingResponse> getCourseOfferings(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<CourseOffering> offerings;
+
         if (search != null && !search.isEmpty()) {
-            return courseOfferingRepository.searchCourseOfferings(search, pageable);
+            // custom search in repository (course name, courseId, studentId, offeredYear, result)
+            offerings = courseOfferingRepository.searchCourseOfferings(search, pageable);
+        } else {
+            offerings = courseOfferingRepository.findAll(pageable);
         }
-        return courseOfferingRepository.findAll(pageable);
+
+        // Map entity to DTO
+        return offerings.map(CourseOfferingResponse::new);
     }
+
 
     public CourseOffering getById(Long id) {
         return courseOfferingRepository.findById(id)
@@ -42,7 +51,7 @@ public class CourseOfferingService {
     }
 
     // Add offering using a request object
-    public CourseOffering addCourseOffering(CourseOfferingRequest request) {
+    public CourseOfferingResponse addCourseOffering(CourseOfferingRequest request) {
         Student student = studentRepository.findByStudentId(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
@@ -50,19 +59,20 @@ public class CourseOfferingService {
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         CourseOffering offering = new CourseOffering(student, course, request.getOfferedYear(), request.getResult());
-        return courseOfferingRepository.save(offering);
+        CourseOffering saved = courseOfferingRepository.save(offering);
+
+        return new CourseOfferingResponse(saved);
     }
 
-    public CourseOffering updateCourseOffering(CourseOfferingUpdateRequest request) {
-        // Fetch existing course offering by auto-increment ID
+    public CourseOfferingResponse updateCourseOffering(CourseOfferingUpdateRequest request) {
         CourseOffering co = courseOfferingRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Course offering not found"));
 
-        // Update only offeredYear and result if provided
         if (request.getOfferedYear() != null) co.setOfferedYear(request.getOfferedYear());
         if (request.getResult() != null) co.setResult(request.getResult());
 
-        return courseOfferingRepository.save(co);
+        CourseOffering updated = courseOfferingRepository.save(co);
+        return new CourseOfferingResponse(updated);
     }
 
 

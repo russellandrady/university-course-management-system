@@ -1,5 +1,6 @@
 package edu.university.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -27,7 +28,8 @@ public class Student {
     private String password;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<CourseOffering> courseOfferings = new ArrayList<>();
 
     protected Student() {}

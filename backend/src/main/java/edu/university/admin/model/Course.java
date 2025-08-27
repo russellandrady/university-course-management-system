@@ -1,6 +1,11 @@
 package edu.university.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "courses")
@@ -21,6 +26,12 @@ public class Course {
 
     @Column(nullable = false)
     private boolean mandatory;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<CourseOffering> courseOfferings = new ArrayList<>();
+
 
     // Constructors
     public Course() {}

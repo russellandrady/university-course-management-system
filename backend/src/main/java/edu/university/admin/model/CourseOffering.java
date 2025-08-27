@@ -21,6 +21,7 @@ public class CourseOffering {
     // Many offerings belong to one course
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
+    @JsonBackReference
     private Course course;
 
     @Column(nullable = false)

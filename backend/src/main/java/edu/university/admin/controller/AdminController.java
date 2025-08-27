@@ -1,5 +1,6 @@
 package edu.university.admin.controller;
 
+import edu.university.admin.dto.CourseOfferingResponse;
 import edu.university.admin.dto.LoginResponse;
 import edu.university.admin.dto.StudentResponse;
 import edu.university.admin.model.Course;
@@ -128,7 +129,7 @@ public class AdminController {
     // ---------------- Course Offerings ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/course-offerings")
-    public ResponseEntity<ApiResponse<Page<CourseOffering>>> getCourseOfferings(
+    public ResponseEntity<ApiResponse<Page<CourseOfferingResponse>>> getCourseOfferings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String search
@@ -136,20 +137,18 @@ public class AdminController {
         return ServiceExecutor.executeService(() -> courseOfferingService.getCourseOfferings(page, size, search));
     }
 
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/course-offerings")
-    public ResponseEntity<ApiResponse<CourseOffering>> addCourseOffering(@RequestBody CourseOfferingRequest request) {
-        return
-                ServiceExecutor.executeService(() -> courseOfferingService.addCourseOffering(request))
-        ;
+    public ResponseEntity<ApiResponse<CourseOfferingResponse>> addCourseOffering(@RequestBody CourseOfferingRequest request) {
+        return ServiceExecutor.executeService(() -> courseOfferingService.addCourseOffering(request));
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/course-offerings/update")
-    public ResponseEntity<ApiResponse<CourseOffering>> updateCourseOffering(
+    public ResponseEntity<ApiResponse<CourseOfferingResponse>> updateCourseOffering(
             @RequestBody CourseOfferingUpdateRequest request) {
-        return ServiceExecutor.executeService(() ->
-                courseOfferingService.updateCourseOffering(request)
-        );
+        return ServiceExecutor.executeService(() -> courseOfferingService.updateCourseOffering(request));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
