@@ -46,6 +46,7 @@ public class StudentService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 
+
     public StudentResponse addStudent(Student student) {
         student.setPassword(passwordEncoder.encode(student.getPassword()));
         Student saved = repo.save(student);

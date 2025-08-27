@@ -80,6 +80,15 @@ public class AdminController {
         return ServiceExecutor.executeService(() -> studentservice.updateStudent(student));
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/students/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteStudent(@RequestParam Long id) {
+        return ServiceExecutor.executeService(() -> {
+            studentservice.delete(id);
+            return null;
+        });
+    }
+
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/courses")
@@ -107,6 +116,15 @@ public class AdminController {
         return ServiceExecutor.executeService(() -> courseService.updateCourse(course));
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/courses/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteCourse(@RequestParam Long id) {
+        return ServiceExecutor.executeService(() -> {
+            courseService.delete(id);
+            return null;
+        });
+    }
+
     // ---------------- Course Offerings ----------------
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/course-offerings")
@@ -132,6 +150,15 @@ public class AdminController {
         return ServiceExecutor.executeService(() ->
                 courseOfferingService.updateCourseOffering(request)
         );
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/course-offerings/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteCourseOffering(@RequestParam Long id) {
+        return ServiceExecutor.executeService(() -> {
+            courseOfferingService.delete(id);
+            return null;
+        });
     }
 
 }

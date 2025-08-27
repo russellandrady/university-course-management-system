@@ -14,6 +14,7 @@ public class CourseOffering {
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonBackReference
     @JsonIgnoreProperties({"courseOfferings", "password"})
     private Student student;
 
