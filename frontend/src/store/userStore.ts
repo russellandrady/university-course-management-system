@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { UserType } from "@/types/UserType";
-import type { CourseOfferingsPage, CoursesPage, StudentsPage } from "@/types/auth/authTypes";
+import type { CourseOfferingsPage, CoursesPage, StudentsPage, StudentUserPage } from "@/types/auth/authTypes";
 
 type UserState = {
   username: string | null; // Store the username
@@ -17,6 +17,8 @@ type UserState = {
   setCoursesPage: (data: CoursesPage) => void;
   courseOfferingsPage: CourseOfferingsPage | null;
   setCourseOfferingsPage: (data: CourseOfferingsPage) => void;
+  studentUserPage: StudentUserPage | null;
+  setStudentUserPage: (data: StudentUserPage) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -28,13 +30,15 @@ export const useUserStore = create<UserState>()(
       studentPage: null,
       coursePage: null,
       courseOfferingsPage: null,
+      studentUserPage: null,
       setUsername: (username: string) => set({ username: username }), // Update username
       setUserType: (userType: UserType) => set({ userType }), // Setter
       setStudentPage: (data: StudentsPage) => set({ studentPage: data }),
       setCoursesPage: (data: CoursesPage) => set({ coursePage: data }),
       toggleMode: () => set(() => ({ modeDark: !get().modeDark })), // Toggle mode state
       setCourseOfferingsPage: (data: CourseOfferingsPage) => set({ courseOfferingsPage: data }),
-      clearUser: () => set({ username: null, userType: null, studentPage: null, coursePage: null, courseOfferingsPage: null }), // Clear user state
+      setStudentUserPage: (data: StudentUserPage) => set({ studentUserPage: data }),
+      clearUser: () => set({ username: null, userType: null, studentPage: null, coursePage: null, courseOfferingsPage: null, studentUserPage: null }), // Clear user state
     }),
     {
       name: "user-storage", // Key for local storage

@@ -9,6 +9,7 @@ import MainLayout from "../layouts/main-layout";
 import Splash from "../components/loading/Splash";
 import PageLoader from "../components/loading/PageLoader";
 import Auth from "@/pages/auth";
+import DashboardForStudentUser from "@/pages/student/DashboardForStudentUser";
 
 const App = lazy(() => import("../App"));
 const Dashboard = lazy(() => import("../pages/admin/dashboard"));
@@ -57,7 +58,25 @@ const router = createBrowserRouter([
             path: "admin/sign-in",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <Auth/>
+                <Auth userType="admin" />
+              </Suspense>
+            ),
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "student/sign-in",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Auth userType="students" />
+              </Suspense>
+            ),
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "student/dashboard",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <DashboardForStudentUser />
               </Suspense>
             ),
             errorElement: <ErrorBoundary />,

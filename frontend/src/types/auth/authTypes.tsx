@@ -1,4 +1,5 @@
 import { StudentResponse } from "../student/StudentResponse";
+import { StudentUserCourseOffering } from "../student/StudentUserCourseOffering";
 import { CourseOfferingResponse } from "./course/CourseOfferingResponse";
 import { CourseResponse } from "./course/CourseResponse";
 
@@ -23,6 +24,12 @@ export interface CoursesPage extends PageInfo {
 
 export interface CourseOfferingsPage extends PageInfo {
   courseOfferings: CourseOfferingResponse[];
+}
+
+export interface StudentUserPage {
+  studentId: number;
+  name: string;
+  courseOfferings: StudentUserCourseOffering[];
 }
 
 export interface AuthResponseOfAdmin {

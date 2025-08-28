@@ -5,23 +5,23 @@ import { useUserStore } from "@/store/userStore.js";
 import { use } from "react";
 import { useTokenStore } from "@/store/tokenStore.js";
 import { CourseOfferingResponse } from "@/types/auth/course/CourseOfferingResponse.js";
+import { UserType } from "@/types/UserType.js";
 
 export const DashboardManager = {
-  userAuth: async (credentials: AuthCredentials): Promise<AuthResponseOfAdmin> => {
-    const data = { ...credentials }; // Payload for the API request
-
-    // Call the API endpoint for user authentication (signin or signup)
-    const response = await apiManager.apiPOST<ApiResponse>(
-      `/admin/login`, // Dynamically set the endpoint
-      data,
-      null,
-    );
-    useUserStore.getState().setUsername(credentials.username);
-    useUserStore.getState().setUserType("admin");
-    useTokenStore.getState().setToken(response.data.data.token);
-    return {
-      token: response.data.data.token
-    };
+    auth: async (credentials: AuthCredentials, userType: UserType) => {
+      const data = { ...credentials };
+      // Use userType to determine the endpoint
+      const response = await apiManager.apiPOST<ApiResponse>(
+        `/${userType}/login`,
+        data,
+        null,
+      );
+      useUserStore.getState().setUsername(credentials.username);
+      useUserStore.getState().setUserType(userType);
+      useTokenStore.getState().setToken(response.data.data.token);
+      return {
+        token: response.data.data.token
+      };
   },
   userLogOut: async (): Promise<logOutResponse> => {
     const response = await apiManager.apiPOST<ApiResponse>(
@@ -308,5 +308,15 @@ deleteCourseOffering: async (offeringId: number) => {
   }
 
   return response.data.data;
-}
+},
+fetchStudentUserPage: async ({ search = "" } = {}) => {
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+
+  const response = await apiManager.apiGET<ApiResponse>(
+    `/students/details${params.toString() ? "?" + params.toString() : ""}`
+  );
+  useUserStore.getState().setStudentUserPage(response.data.data);
+  return response.data.data;
+},
 };

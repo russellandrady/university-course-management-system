@@ -37,18 +37,18 @@ interface DataTableProps {
   data: any[];
   columns: Column[];
   searchPlaceholder: string;
-  onEdit: (row: any) => void;
+  onEdit?: (row: any) => void;
   onSearch: (search: string) => void;
   onPageChange: (page: number) => void;
   currentPage: number;
   totalPages: number;
-  editModalTitle: string;
-  addModalTitle: string;
-  editFields: { key: string; label: string; type?: string }[];
-  addFields: { key: string; label: string; type?: string }[];
-  onAdd: (data: any) => void;
-  onUpdate: (data: any) => void;
-  formSchema: z.ZodObject<any>;
+  editModalTitle?: string;
+  addModalTitle?: string;
+  editFields?: { key: string; label: string; type?: string }[];
+  addFields?: { key: string; label: string; type?: string }[];
+  onAdd?: (data: any) => void;
+  onUpdate?: (data: any) => void;
+  formSchema?: z.ZodObject<any>;
   tableTitle?: string;
   onDelete?: (id: number) => void; // Add this line
 }
@@ -62,10 +62,10 @@ export function DataTable({
   onPageChange,
   currentPage,
   totalPages,
-  editModalTitle,
-  addModalTitle,
-  editFields,
-  addFields,
+  editModalTitle = "",
+  addModalTitle = "",
+  editFields = [],
+  addFields = [],
   onAdd,
   onUpdate,
   formSchema,
@@ -77,6 +77,9 @@ export function DataTable({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const [currentEditingRow, setCurrentEditingRow] = useState<any>(null);
+
+  const canAdd = !!addFields?.length && !!formSchema && !!onAdd;
+  const canEdit = !!editFields?.length && !!formSchema && !!onUpdate;
 
   // Debounced search
   useEffect(() => {
@@ -91,19 +94,19 @@ export function DataTable({
 
   // Add Form
   const addForm = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: formSchema ? zodResolver(formSchema) : undefined,
     mode: "onChange",
   });
 
   // Edit Form
   const editForm = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: formSchema ? zodResolver(formSchema) : undefined,
     mode: "onChange",
   });
 
   const addMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await onAdd(data);
+      if (onAdd) return await onAdd(data);
     },
     onSuccess: () => {
       setIsAddModalOpen(false);
@@ -113,7 +116,7 @@ export function DataTable({
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await onUpdate(data);
+      if (onUpdate) return await onUpdate(data);
     },
     onSuccess: () => {
       setIsEditModalOpen(false);
@@ -139,7 +142,7 @@ export function DataTable({
     setCurrentEditingRow(row); // Store the current editing row
     editForm.reset(row);
     setIsEditModalOpen(true);
-    onEdit(row);
+    if (onEdit) onEdit(row);
   };
 
   return (
@@ -152,9 +155,11 @@ export function DataTable({
           onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-sm"
         />
-        <Button onClick={() => setIsAddModalOpen(true)} className="ml-auto">
-          Add New
-        </Button>
+        {canAdd && (
+          <Button onClick={() => setIsAddModalOpen(true)} className="ml-auto">
+            Add New
+          </Button>
+        )}
       </div>
       <Table className="rounded-xl overflow-hidden bg-background/60 backdrop-blur-md shadow-lg border border-gray-200/60">
         <TableHeader>
@@ -162,7 +167,9 @@ export function DataTable({
             {columns.map((column) => (
               <TableHead key={column.key}>{column.label}</TableHead>
             ))}
-            <TableHead className="text-center">Actions</TableHead>
+            { canEdit && (
+              <TableHead className="text-center">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -188,20 +195,25 @@ export function DataTable({
                       : row[column.key]}
                   </TableCell>
                 ))}
-                <TableCell className="text-center">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(row)}
-                  >
-                    <SquarePen className="w-4 h-4" />
-                  </Button>
-                </TableCell>
+                {canEdit && (
+                  <TableCell className="text-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(row)}
+                    >
+                      <SquarePen className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length + 1} className="text-center">
+              <TableCell
+                colSpan={columns.length + (!canEdit ? 0 : 1)}
+                className="text-center"
+              >
                 No data found.
               </TableCell>
             </TableRow>
@@ -235,8 +247,8 @@ export function DataTable({
         </Button>
       </div>
 
-      {/* Edit Modal */}
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+      {/* Add Modal */}
+      {canAdd && <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Add New {addModalTitle}</DialogTitle>
@@ -293,10 +305,10 @@ export function DataTable({
             </form>
           </Form>
         </DialogContent>
-      </Dialog>
+      </Dialog>}
 
       {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      {canEdit && <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit {editModalTitle}</DialogTitle>
@@ -334,11 +346,14 @@ export function DataTable({
                   )}
                 />
               ))}
-                            <DialogFooter>
+              <DialogFooter>
                 <div className="flex flex-col sm:flex-row justify-between w-full items-center gap-2">
                   {/* Left side: Update & Cancel */}
                   <div className="flex gap-2 w-full sm:w-auto justify-start">
-                    <Button type="submit" disabled={!editForm.formState.isValid}>
+                    <Button
+                      type="submit"
+                      disabled={!editForm.formState.isValid}
+                    >
                       Update
                     </Button>
                     <Button
@@ -385,7 +400,7 @@ export function DataTable({
             </form>
           </Form>
         </DialogContent>
-      </Dialog>
+      </Dialog>}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MainButton } from "@/components/ui/custom/main-button";
 import {
@@ -20,6 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { use } from "react";
 import { useUserStore } from "@/store/userStore";
+import { UserType } from "@/types/UserType";
 
 // Define form schema using zod
 const formSchema = z.object({
@@ -39,7 +40,7 @@ const formSchema = z.object({
 
 type AuthFormValues = z.infer<typeof formSchema>;
 
-export default function Auth() {
+export default function Auth({ userType }: { userType: UserType }) {
   const navigate = useNavigate();
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(formSchema),
@@ -51,13 +52,16 @@ export default function Auth() {
   });
 
   // Define the mutation for user authentication
-  const authMutation = useMutation({
+    const authMutation = useMutation({
     mutationFn: async (data: AuthCredentials) => {
-      return await DashboardManager.userAuth(data);
+      return await DashboardManager.auth(data, userType);
     },
     onSuccess: (response) => {
-      console.log("Auth Response:", response);
-      navigate("/");
+      if (userType === "students") {
+        navigate("/student/dashboard");
+      } else {
+        navigate("/");
+      }
     }
   });
 
@@ -68,6 +72,11 @@ export default function Auth() {
   return (
     <div className="flex items-center justify-center p-4 h-[calc(100vh-4rem)]">
       <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-medium">
+            {userType === "admin" ? "Admin Login" : "Student Login"}
+          </CardTitle>
+        </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <Avatar className="w-28 h-28">
