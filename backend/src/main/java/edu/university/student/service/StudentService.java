@@ -36,12 +36,18 @@ public class StudentService {
         return jwtUtil.generateToken(username, "STUDENT", student.getId());
     }
 
-    public StudentDetailsResponse viewAllDetails(Long studentId) {
+    public StudentDetailsResponse viewAllDetails(Long studentId, String search) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
         List<CourseOfferingResponse> offerings = student.getCourseOfferings()
                 .stream()
+                .filter(offering -> {
+                    if (search == null || search.isEmpty()) return true;
+                    return offering.getCourse().getCourseId().toLowerCase().contains(search.toLowerCase())
+                            || offering.getCourse().getName().toLowerCase().contains(search.toLowerCase())
+                            || String.valueOf(offering.getOfferedYear()).toLowerCase().contains(search.toLowerCase());
+                })
                 .map(offering -> new CourseOfferingResponse(
                         offering.getId(),
                         offering.getCourse().getCourseId(),

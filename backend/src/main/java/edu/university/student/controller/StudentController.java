@@ -56,14 +56,14 @@ public class StudentController {
 
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/details")
-    public ResponseEntity<ApiResponse<StudentDetailsResponse>> viewAllDetails(@RequestHeader("Authorization") String token) {
-        return
-                ServiceExecutor.executeService(() -> {
-                    // Extract token from "Bearer <token>"
-                    String jwtToken = token.substring(7);
-                    Long studentId = jwtUtil.getIdFromToken(jwtToken);
-                    return studentService.viewAllDetails(studentId);
-                })
-        ;
+    public ResponseEntity<ApiResponse<StudentDetailsResponse>> viewAllDetails(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "search", required = false) String search
+    ) {
+        return ServiceExecutor.executeService(() -> {
+            String jwtToken = token.substring(7);
+            Long studentId = jwtUtil.getIdFromToken(jwtToken);
+            return studentService.viewAllDetails(studentId, search);
+        });
     }
 }
