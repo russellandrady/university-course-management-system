@@ -1,6 +1,7 @@
 package edu.university.student.controller;
 
 import edu.university.security.util.JwtUtil;
+import edu.university.student.dto.StudentDetailsResponse;
 import edu.university.student.service.StudentService;
 import edu.university.utils.ApiResponse;
 import edu.university.utils.ServiceExecutor;
@@ -55,7 +56,7 @@ public class StudentController {
 
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/details")
-    public ResponseEntity<ApiResponse<List<String>>> viewAllDetails(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<StudentDetailsResponse>> viewAllDetails(@RequestHeader("Authorization") String token) {
         return
                 ServiceExecutor.executeService(() -> {
                     // Extract token from "Bearer <token>"

@@ -3,6 +3,8 @@ package edu.university.student.service;
 import edu.university.admin.model.Student;
 import edu.university.admin.repository.StudentRepository;
 import edu.university.security.util.JwtUtil;
+import edu.university.student.dto.CourseOfferingResponse;
+import edu.university.student.dto.StudentDetailsResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,16 +36,25 @@ public class StudentService {
         return jwtUtil.generateToken(username, "STUDENT", student.getId());
     }
 
-    public List<String> viewAllDetails(Long studentId) {
+    public StudentDetailsResponse viewAllDetails(Long studentId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        return student.getCourseOfferings().stream()
-                .map(offering -> String.format("Course: %s (%s), Year: %d, Result: %s",
-                        offering.getCourse().getName(),
+        List<CourseOfferingResponse> offerings = student.getCourseOfferings()
+                .stream()
+                .map(offering -> new CourseOfferingResponse(
+                        offering.getId(),
                         offering.getCourse().getCourseId(),
+                        offering.getCourse().getName(),
                         offering.getOfferedYear(),
-                        offering.getResult() != null ? offering.getResult().toString() : "Not graded"))
+                        offering.getResult() != null ? offering.getResult().toString() : "Not graded"
+                ))
                 .collect(Collectors.toList());
+
+        return new StudentDetailsResponse(
+                student.getId(),
+                student.getName(),
+                offerings
+        );
     }
 }
