@@ -59,16 +59,29 @@ export function AppHeader({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <Avatar>
-                    <AvatarImage src="/mainLogo.svg" alt="home" className={isDarkMode ? "filter invert" : ""}/>
+                    <AvatarImage
+                      src="/mainLogo.svg"
+                      alt="home"
+                      className={isDarkMode ? "filter invert" : ""}
+                    />
                     <AvatarFallback></AvatarFallback>
                   </Avatar>
-                  <BreadcrumbLink href="#">Greenfield University</BreadcrumbLink>
+                  <BreadcrumbLink href="#">
+                    Greenfield University
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
 
           <div className="flex items-center gap-2 pr-1">
+            <button
+              className="p-2 rounded-full border bg-muted hover:bg-muted/80 flex items-center justify-center"
+              onClick={() => navigate("/")}
+              aria-label="Go Home"
+            >
+              <Home className="h-5 w-5" />
+            </button>
             {username && (
               <button
                 onClick={handleSignOut}

@@ -3,7 +3,13 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MainButton } from "@/components/ui/custom/main-button";
 import {
@@ -52,7 +58,7 @@ export default function Auth({ userType }: { userType: UserType }) {
   });
 
   // Define the mutation for user authentication
-    const authMutation = useMutation({
+  const authMutation = useMutation({
     mutationFn: async (data: AuthCredentials) => {
       return await DashboardManager.auth(data, userType);
     },
@@ -60,9 +66,9 @@ export default function Auth({ userType }: { userType: UserType }) {
       if (userType === "students") {
         navigate("/student/dashboard");
       } else {
-        navigate("/");
+        navigate("/admin/dashboard");
       }
-    }
+    },
   });
 
   const onSubmit: SubmitHandler<AuthFormValues> = (data) => {
@@ -144,6 +150,25 @@ export default function Auth({ userType }: { userType: UserType }) {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="flex justify-center text-center">
+          <div className="mt-4 text-center">
+            {userType === "students" ? (
+              <span
+                className="text-sm underline cursor-pointer"
+                onClick={() => navigate("/admin/sign-in")}
+              >
+                Are you an admin?
+              </span>
+            ) : (
+              <span
+                className="text-sm underline cursor-pointer"
+                onClick={() => navigate("/student/sign-in")}
+              >
+                Are you a student?
+              </span>
+            )}
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );
