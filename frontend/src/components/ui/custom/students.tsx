@@ -59,7 +59,7 @@ export function Students() {
   })
 
   const handleEdit = (row: StudentResponse) => {
-    // Handle edit logic here
+    console.log("Editing row:", row);
   }
 
   const handleSearch = (search: string) => {

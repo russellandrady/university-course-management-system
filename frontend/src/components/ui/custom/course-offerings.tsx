@@ -4,7 +4,6 @@ import { useUserStore } from "@/store/userStore";
 import { DashboardManager } from "@/api/services/DashboardService";
 import { DataTable } from "./dataTable";
 import { z } from "zod";
-import { ref } from "process";
 import { useTokenStore } from "@/store/tokenStore";
 
 const offeringColumns = [
@@ -54,7 +53,7 @@ export function CourseOfferings() {
   });
 
   const handleEdit = (row: any) => {
-    // Handle edit logic here
+    console.log("Editing row:", row);
   };
 
   const handleSearch = (search: string) => {

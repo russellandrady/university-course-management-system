@@ -1,8 +1,7 @@
 import apiManager from "../apiManager.js";
 import { ApiResponse } from "@/types/ApiResponse.js";
-import { AuthCredentials, AuthResponseOfAdmin, logOutResponse } from "@/types/auth/authTypes.js";
+import { AuthCredentials, logOutResponse } from "@/types/auth/authTypes.js";
 import { useUserStore } from "@/store/userStore.js";
-import { use } from "react";
 import { useTokenStore } from "@/store/tokenStore.js";
 import { CourseOfferingResponse } from "@/types/auth/course/CourseOfferingResponse.js";
 import { UserType } from "@/types/UserType.js";

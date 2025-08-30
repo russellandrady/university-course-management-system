@@ -1,6 +1,4 @@
 import type * as React from "react"
-import { GalleryVerticalEnd } from "lucide-react"
-
 import {
   Sidebar,
   SidebarContent,
@@ -12,9 +10,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail,
 } from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { BreadcrumbItem, BreadcrumbLink } from "./ui/breadcrumb"
 
 // This is sample data.

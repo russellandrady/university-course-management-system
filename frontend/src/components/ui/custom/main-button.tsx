@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button, type ButtonProps } from "@/components/ui/button";

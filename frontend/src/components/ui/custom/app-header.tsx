@@ -6,18 +6,13 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { DashboardManager } from "@/api/services/DashboardService";
-import { logOutResponse } from "@/types/auth/authTypes";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/userStore";
 import { useTokenStore } from "@/store/tokenStore";

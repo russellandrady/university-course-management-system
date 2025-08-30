@@ -1,4 +1,3 @@
-import { RequestType } from '@/types/RequestType';
 import axios, { AxiosResponse, AxiosInstance, AxiosError } from 'axios';
 import { useTokenStore } from '@/store/tokenStore';
 import { useUserStore } from '@/store/userStore';
@@ -56,7 +55,6 @@ export class ApiManager {
         url: string,
         data?: any,
         params?: any,
-        requestType: RequestType = RequestType.USER // Default to user
     ): Promise<AxiosResponse<T>> {
         try {
             const response = await this.http.post(url, data, { params });
@@ -68,8 +66,7 @@ export class ApiManager {
 
     public async apiGET<T>(
         url: string,
-        params?: any,
-        requestType: RequestType = RequestType.USER // Default to user
+        params?: any
     ): Promise<AxiosResponse<T>> {
         try {
             const response = await this.http.get(url, { params });

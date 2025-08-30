@@ -24,8 +24,6 @@ import { AuthCredentials } from "@/types/auth/authTypes";
 import { DashboardManager } from "@/api/services/DashboardService";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { use } from "react";
-import { useUserStore } from "@/store/userStore";
 import { UserType } from "@/types/UserType";
 
 // Define form schema using zod
@@ -63,6 +61,7 @@ export default function Auth({ userType }: { userType: UserType }) {
       return await DashboardManager.auth(data, userType);
     },
     onSuccess: (response) => {
+      console.log(response)
       if (userType === "students") {
         navigate("/student/dashboard");
       } else {

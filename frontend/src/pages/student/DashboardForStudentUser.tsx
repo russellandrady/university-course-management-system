@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
 import { DashboardManager } from "@/api/services/DashboardService";
 import { DataTable } from "@/components/ui/custom/dataTable";
-import { useTokenStore } from "@/store/tokenStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const columns = [
@@ -17,7 +16,6 @@ export default function DashboardForStudentUser() {
   const userStore = useUserStore();
   const studentUser = userStore.studentUserPage;
   const totalPages = 1; // Only one page for this user
-  const token = useTokenStore((state) => state.token);
 
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -27,7 +25,7 @@ export default function DashboardForStudentUser() {
   const { refetch } = useQuery({
     queryKey: ["studentUserPage", page, size, debouncedSearch],
     queryFn: () =>
-      DashboardManager.fetchStudentUserPage({ search: debouncedSearch }),
+      DashboardManager.fetchStudentUserPage({ search: debouncedSearch }).then(() => setUserTypedSomething(true)),
   });
 
   const handleSearch = (search: string) => {
