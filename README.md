@@ -26,7 +26,7 @@ A full-stack application built with Spring Boot and React to manage course offer
 git clone <repository-url>
 ```
 
-2. Update `.env` file in root directory:
+2. Update `.env` file in root directory if needed:
 
 ```env
 MYSQL_PORT=3308
