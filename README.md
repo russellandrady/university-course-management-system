@@ -77,8 +77,9 @@ Password: adminadmin
 
 1. Create new Web Service on Render
 2. Connect GitHub repository
-3. Select "Docker" as runtime
-4. Add Environment Variables:
+3. Set Root Directory to ./backend
+4. Select "Docker" as runtime
+5. Add Environment Variables:
    ```
    MYSQL_DATABASE=<aiven-database-name>
    MYSQL_USER=<aiven-username>
@@ -90,8 +91,9 @@ Password: adminadmin
 
 1. Create new Static Site on Render
 2. Connect GitHub repository
-3. Select "Docker" as runtime
-4. Add Environment Variable:
+3. Set Root Directory to ./frontend
+4. Select "Docker" as runtime
+5. Add Environment Variable:
    ```
    VITE_REACT_APP_API_BASE_URL=https://<your-backend-url>.onrender.com/api
    ```
