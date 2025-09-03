@@ -31,6 +31,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+      - VITE_REACT_APP_API_BASE_URL=${VITE_REACT_APP_API_BASE_URL}
     container_name: react_frontend
     ports:
       - "3000:80"
